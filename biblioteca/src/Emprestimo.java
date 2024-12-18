@@ -6,6 +6,12 @@ public class Emprestimo {
     private Usuario usuario;
     private Livro livro;
     
+    public Emprestimo(LocalDate dataEmprestimo, LocalDate dataDevolucao, Usuario usuario, Livro livro) {
+        this.dataEmprestimo = dataEmprestimo;
+        this.dataDevolucao = dataDevolucao;
+        this.usuario = usuario;
+        this.livro = livro;
+    }
     public LocalDate getDataEmprestimo() {
         return dataEmprestimo;
     }
@@ -35,4 +41,5 @@ public class Emprestimo {
             throw new IllegalStateException("Livro não está disponível para empréstimo."); //lança uma exceção, interrompende o fluxo do programa, porque o estado atual é inválido (já que o livro não está disponível)
         }
     }
+   
 } 

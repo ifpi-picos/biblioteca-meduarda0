@@ -1,15 +1,16 @@
 public class Livro {
-    private String autor;
     private String titulo;
+    private String autor;
     private String editora;
     private int ano;
     private boolean disponivel;
     
-    public String getAutor() {
-        return autor;
-    }
-    public void setAutor(String autor) {
+    public Livro(String titulo, String autor, String editora, int ano, boolean disponivel) {
+        this.titulo = titulo;
         this.autor = autor;
+        this.editora = editora;
+        this.ano = ano;
+        this.disponivel = disponivel;
     }
     public String getTitulo() {
         return titulo;
@@ -17,6 +18,13 @@ public class Livro {
     public void setTitulo(String titulo) {
         this.titulo = titulo;
     }
+    public String getAutor() {
+        return autor;
+    }
+    public void setAutor(String autor) {
+        this.autor = autor;
+    }
+    
     public String getEditora() {
         return editora;
     }
