@@ -43,7 +43,7 @@ public class Main {
                         realizarEmprestimo(scanner);
                         break;
                     case 6:
-
+                        devolverLivroDoEmprestimo(scanner);
                         break;
                     case 0:
                         System.out.println("Saindo do programa...");
@@ -135,7 +135,7 @@ public class Main {
             System.out.println("Não há livros cadastrados. \n");
         } else {
             System.out.println("\n   LISTA DE LIVROS:");
-            for (int i = 0; i < livros.size(); i++) {
+            for (int i = 0; i < livros.size(); i++) { //inicialização, condição, incremento
                 Livro livro = livros.get(i); //obter o livro da lista
                 System.out.println("Título: " + livro.getTitulo());
                 System.out.println("Autor: " + livro.getAutor());
@@ -195,12 +195,38 @@ public class Main {
 
         System.out.println("Empréstimo do livro " + livroSelecionado.getTitulo() + " realizado com sucesso!");
         System.out.println("Data de devolução: " + emprestimo.getDataDevolucao());
+    }
 
 
+    //MÉTODO PARA DEVOLVER LIVRO QUE FOI EMPRESTADO
+    public static void devolverLivroDoEmprestimo(Scanner scanner) {
+        System.out.print("Digite o título do livro que deseja devolver: ");
+        String tituloLivro = scanner.nextLine();
 
+        Livro livroSelecionado = null;
 
+        for (int i = 0; i < livros.size(); i++) {
+            Livro livro = livros.get(i); //obter o livro da lista
+            if (livro.getTitulo().equalsIgnoreCase(tituloLivro)) {
+                livroSelecionado = livro; //se encontrar o livro, armazena na variável
+                break;
+            }   
+        }
 
+        //verificar se o livro está no sistema
+        if (livroSelecionado == null) {
+            System.out.println("Livro não encontrado!");
+            return;
+        }
 
+        //verificar se o livro foi emprestado
+        if (livroSelecionado.isDisponivel()) { 
+            System.out.println("Este livro não precisa ser devolvido, já está disponível!");
+            return;
+        }
 
+        //atualizar status do livro
+        livroSelecionado.setDisponivel(true);
+        System.out.println("Devolução do livro " + livroSelecionado.getTitulo() + " realizada com sucesso!");
     }
 }
