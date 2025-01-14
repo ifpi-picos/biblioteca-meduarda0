@@ -121,7 +121,7 @@ public class Main {
 
     //MÉTODO PARA CADASTRO DE USUÁRIOS
     private static void cadastrarUsuario(Scanner scanner) {
-        String nome, cpf, email;
+        String nome, cpf, email, preferenciaNotificacao; //NOVO: PREFERÊNCIA
 
         while (true) {
             System.out.print("NOME: ");
@@ -152,8 +152,22 @@ public class Main {
             }
             break;
         }
+        //NOVAS LINHAS (WHILE)
+        while (true) {
+            System.out.println("\nEscolha como deseja receber as suas notificações");
+            System.out.println("1 - SMS");
+            System.out.println("2 - WhatsApp");
+            System.out.println("3 - E-mail");
+            System.out.print("Opção: ");
+            preferenciaNotificacao = scanner.nextLine().trim();
+            if (email.isEmpty()) {
+                System.out.println("A preferência de notificações é obrigatório!");
+                continue;
+            }
+            break;
+        }
 
-        Usuario usuario = new Usuario(nome, cpf, email);  //cria o objeto usuário e adicionar à lista
+        Usuario usuario = new Usuario(nome, cpf, email, preferenciaNotificacao);  //cria o objeto usuário e adicionar à lista
         usuarios.add(usuario); 
         System.out.println("Usuário cadastrado com sucesso!");
     }
@@ -266,7 +280,28 @@ public class Main {
         System.out.println("Livro: " + livroSelecionado.getTitulo());
         System.out.println("Usuário: " + usuario.getNome());
         System.out.println("Data de devolução: " + emprestimo.getDataDevolucao());
+    
+        //NOVA LINHA
+        notificarUsuario(usuario, "Seu empréstimo foi realizado com sucesso. Livro: " + livroSelecionado.getTitulo());
     }
+
+        //NOVAS LINHAS
+        private static void notificarUsuario(Usuario usuario, String mensagem) {
+            Notificacao notificacao = criarNotificacao(usuario.getPreferenciaNotificacao());
+            notificacao.enviarNotificacao(usuario, mensagem);
+        }
+    
+        private static Notificacao criarNotificacao(String preferencia) {
+            switch (preferencia) {
+                case "1":
+                    return new NotificacaoSMS();
+                case "2":
+                    return new NotificacaoWhatsApp();
+                case "3":
+                default:
+                    return new NotificacaoEmail();
+            }
+        }
 
         
     //MÉTODO PARA DEVOLVER LIVRO QUE FOI EMPRESTADO

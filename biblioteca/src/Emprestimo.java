@@ -41,5 +41,22 @@ public class Emprestimo {
             throw new IllegalStateException("Livro não está disponível para empréstimo."); //lança uma exceção, interrompende o fluxo do programa, porque o estado atual é inválido (já que o livro não está disponível)
         }
     }
-   
+
+    //NOVAS LINHAS 
+    public void notificarUsuario(String mensagem) {
+        Notificacao notificacao = criarNotificacao(usuario.getPreferenciaNotificacao());
+        notificacao.enviarNotificacao(usuario, mensagem);
+    }
+    
+    private Notificacao criarNotificacao(String preferencia) {
+        switch (preferencia) {
+            case "1":
+                return new NotificacaoSMS();
+            case "2": 
+                return new NotificacaoWhatsApp();
+            case "3":
+            default:
+                return new NotificacaoEmail();
+        }
+    }
 } 
