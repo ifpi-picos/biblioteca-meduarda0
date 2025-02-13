@@ -1,15 +1,25 @@
+package com.example;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import com.example.dao.*;
+import com.example.entity.*;
 
-public class Main {
-    private static List<Livro> livros = new ArrayList<>(); //lista p armazenar os livros cadastrados (static p ser usado por qualquer objeto que pertencer a classe)
-    private static List<Emprestimo> emprestimos = new ArrayList<>(); //lista p armazenar os empréstimos
-    private static List<Usuario> usuarios = new ArrayList<>();
+public class App {
+    private static LivroDao livroDao;
+    private static UsuarioDao usuarioDao;
+    private static EmprestimoDao emprestimoDao;
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in); //System.in p ler o que for digitado
+    public static void main(String[] args) throws SQLException { //excessao, por causa de emprestimo
+        Connection conexao = Conexao.conectar(); //inicialização dos DAOS com a conexão já estabelecida
+        livroDao = new LivroDao(conexao);
+        usuarioDao = new UsuarioDao(conexao);
+        emprestimoDao = new EmprestimoDao(conexao);
+
+        Scanner scanner = new Scanner(System.in);
         int opcao = -1;
 
         while (opcao != 0) {
@@ -26,11 +36,11 @@ public class Main {
 
             if (scanner.hasNext()) {
                 opcao = scanner.nextInt();
-                scanner.nextLine(); //lê tudo digitado até encontrar o enter
+                scanner.nextLine();
 
                 switch (opcao) {
                     case 1:
-                        cadastrarLivro(scanner); 
+                        cadastrarLivro(scanner);
                         break;
                     case 2:
                         cadastrarUsuario(scanner);
@@ -58,18 +68,14 @@ public class Main {
                 }
             } else {
                 System.out.println("Entrada inválida! Por favor, insira um número.");
-                scanner.nextLine(); //limpa a entrada inválida
+                scanner.nextLine();
             }
         }
-        scanner.close(); //fecha o scanner
-
+        scanner.close();
     }
 
-    //MÉTODO PARA O CADASTRO DE LIVROS
     private static void cadastrarLivro(Scanner scanner) {
-        String titulo;
-        String autor;
-        String editora;
+        String titulo, autor, editora;
         int ano;
 
         while (true) {
@@ -104,24 +110,22 @@ public class Main {
 
         while (true) {
             System.out.print("ANO DE PUBLICAÇÃO: ");
-            String anoStr = scanner.nextLine().trim(); // Lê o valor como String
-            if (anoStr.isEmpty()) { // Verifica se o campo está vazio
+            String anoStr = scanner.nextLine().trim();
+            if (anoStr.isEmpty()) {
                 System.out.println("O ano de publicação é obrigatório!");
-                continue; // Volta ao início do loop se estiver vazio
+                continue;
             }
-            ano = Integer.parseInt(anoStr); // Converte o valor para inteiro
-            break; //sai do loop se o campo estiver preenchido
+            ano = Integer.parseInt(anoStr);
+            break;
         }
 
-
-        Livro livro = new Livro(titulo, autor, editora, ano, true);  //construtor p criar o livro
-        livros.add(livro); //adiciona o livro à lista de livros
+        Livro livro = new Livro(0, titulo, autor, editora, ano, true); // ID inicializado como 0
+        livroDao.adicionar(livro);
         System.out.println("Livro cadastrado com sucesso!");
     }
 
-    //MÉTODO PARA CADASTRO DE USUÁRIOS
     private static void cadastrarUsuario(Scanner scanner) {
-        String nome, cpf, email, preferenciaNotificacao; //NOVO: PREFERÊNCIA
+        String nome, cpf, email, preferenciaNotificacao;
 
         while (true) {
             System.out.print("NOME: ");
@@ -152,7 +156,7 @@ public class Main {
             }
             break;
         }
-        //NOVAS LINHAS (WHILE)
+
         while (true) {
             System.out.println("\nEscolha como deseja receber as suas notificações");
             System.out.println("1 - SMS");
@@ -160,177 +164,164 @@ public class Main {
             System.out.println("3 - E-mail");
             System.out.print("Opção: ");
             preferenciaNotificacao = scanner.nextLine().trim();
-            if (email.isEmpty()) {
-                System.out.println("A preferência de notificações é obrigatório!");
+            if (preferenciaNotificacao.isEmpty()) {
+                System.out.println("A preferência de notificações é obrigatória!");
                 continue;
             }
             break;
         }
 
-        Usuario usuario = new Usuario(nome, cpf, email, preferenciaNotificacao);  //cria o objeto usuário e adicionar à lista
-        usuarios.add(usuario); 
+        // Cria o usuário com ID inicializado como 0 (o ID será gerado pelo banco de
+        // dados)
+        Usuario usuario = new Usuario(0, nome, cpf, email, preferenciaNotificacao);
+        usuarioDao.adicionar(usuario);
         System.out.println("Usuário cadastrado com sucesso!");
     }
 
-    //MÉTODO PARA LOCALIZAR USUÁRIOS CADASTRADOS
-    private static Usuario buscarUsuario(String nome) {
-        for (int i = 0; i < usuarios.size(); i++) {
-            Usuario usuario = usuarios.get(i);
-            if (usuario.getNome().equalsIgnoreCase(nome)) {
-                return usuario;
-            }
-        }
-        return null; //retorna null se o usuário não for encontrado
-    }
-
-    //MÉTODO PARA LISTAR OS LIVROS CADASTRADOS
     private static void listarLivrosCadastrados() {
-        if (livros.isEmpty()) { // verifica se o ArayList de livros está vazio
+        List<Livro> livros = livroDao.consultar();
+        if (livros.isEmpty()) {
             System.out.println("Não há livros cadastrados. \n");
         } else {
             System.out.println("\n   LISTA DE LIVROS:");
-            for (int i = 0; i < livros.size(); i++) { //inicialização, condição, incremento
-                Livro livro = livros.get(i); // obter o livro da lista
+            for (Livro livro : livros) {
+                System.out.println("ID: " + livro.getId()); // Adicionado o ID
                 System.out.println("Título: " + livro.getTitulo());
                 System.out.println("Autor: " + livro.getAutor());
                 System.out.println("Editora: " + livro.getEditora());
                 System.out.println("Ano: " + livro.getAno());
-                System.out.println("Disponível: " + (livro.isDisponivel() ? "Sim" : "Não")); //se disponível, imprime "Sim"; se não disponível, imprime "Não"
+                System.out.println("Disponível: " + (livro.isDisponivel() ? "Sim" : "Não"));
                 System.out.println();
             }
         }
     }
 
-    //MÉTODO PARA LISTAR LIVROS EMPRESTADOS E DISPONÍVEIS
     private static void listarLivrosEmprestadosEDisponiveis() {
+        List<Livro> livros = livroDao.consultar();
         System.out.println("\n  LIVROS DISPONÍVEIS:");
 
-        for (int i = 0; i < livros.size(); i++) {
-            Livro livro = livros.get(i);
+        for (Livro livro : livros) {
             if (livro.isDisponivel()) {
                 System.out.println("- " + livro.getTitulo() + " (Autor: " + livro.getAutor() + ")");
             }
         }
 
         System.out.println("\n  LIVROS EMPRESTADOS:");
-        for (int i = 0; i < livros.size(); i++) {
-            Livro livro = livros.get(i);
+        for (Livro livro : livros) {
             if (!livro.isDisponivel()) {
                 System.out.println("- " + livro.getTitulo() + " (Autor: " + livro.getAutor() + ")");
             }
         }
     }
 
-    //MÉTODO PARA HISTÓRICO DE EMPRÉSTIMOS DO USUÁRIO
     private static void listarHistoricoDeEmprestimos() {
+        List<Emprestimo> emprestimos = emprestimoDao.consultar();
         System.out.println("\nHistórico de Empréstimos:");
-    for (Emprestimo emprestimo : emprestimos) {
-        System.out.println("Livro: " + emprestimo.getLivro().getTitulo()
-                + " | Usuário: " + emprestimo.getUsuario().getNome()
-                + " | Data de Empréstimo: " + emprestimo.getDataEmprestimo()
-                + " | Data de Devolução: " + emprestimo.getDataDevolucao());
+        for (Emprestimo emprestimo : emprestimos) {
+            System.out.println("Livro: " + emprestimo.getLivro().getTitulo()
+                    + " | Usuário: " + emprestimo.getUsuario().getNome()
+                    + " | Data de Empréstimo: " + emprestimo.getDataEmprestimo()
+                    + " | Data de Devolução: " + emprestimo.getDataDevolucao());
+        }
     }
-}
-    
-    //MÉTODO PARA REALIZAR EMPRÉSTIMO
-    private static void realizarEmprestimo(Scanner scanner) {
-        System.out.print("Para realizar um empréstimo, digite o título do livro que deseja: ");
-        String tituloLivro = scanner.nextLine().trim();
-        Livro livroSelecionado = null;
 
-        for (int i = 0; i < livros.size(); i++) {
-            Livro livro = livros.get(i);   //obter o livro da lista
-            if (livro.getTitulo().equalsIgnoreCase(tituloLivro)) {
-                livroSelecionado = livro;  //se encontrar o livro, armazena na variável
-                break;
-            }
+    private static void realizarEmprestimo(Scanner scanner) throws SQLException { //adicionei a excessao por causa de emprestimo
+        //linhas pra exibir os ids de usuários e livros cadastrados no sistema 
+        List<Usuario> usuariosCadastrados = usuarioDao.consultar();
+        System.out.println("\nUsuários cadastrados no sistema:");
+        for (int i = 0; i < usuariosCadastrados.size(); i++) {
+            System.out.println((i + 1) + ". " + usuariosCadastrados.get(i).getNome() + " (ID: " + usuariosCadastrados.get(i).getId() + ")");
         }
 
-        if (livroSelecionado == null) { //verificar se o livro está no sistema
+        List<Livro> livrosCadastrados = livroDao.consultar();
+        System.out.println("\nLivros disponíveis:");
+        for (int i = 0; i < livrosCadastrados.size(); i++) {
+            System.out.println((i + 1) + ". " + livrosCadastrados.get(i).getTitulo() + " (ID: " + livrosCadastrados.get(i).getId() + ")");
+        }
+
+
+        System.out.print("Para realizar um empréstimo, digite o ID do livro que deseja: ");
+        int livroId = scanner.nextInt();
+        scanner.nextLine(); // Limpar o buffer
+        Livro livroSelecionado = livroDao.consultarPorId(livroId);
+
+        if (livroSelecionado == null) {
             System.out.println("Livro não encontrado!");
             return;
         }
 
-        //verificar se o livro está disponível p empréstimo
-        if (!livroSelecionado.isDisponivel()) { //lê-se: se o livro não estiver disponível
+        if (!livroSelecionado.isDisponivel()) {
             System.out.println("Livro não disponível para empréstimos!");
             return;
         }
 
-        System.out.print("Digite o nome do usuário que deseja fazer o empréstimo: ");
-        String nomeUsuario = scanner.nextLine().trim();
-        Usuario usuario = buscarUsuario(nomeUsuario);
+        System.out.print("Digite o ID do usuário que deseja fazer o empréstimo: ");
+        int usuarioId = scanner.nextInt();
+        scanner.nextLine(); // Limpar o buffer
+        Usuario usuario = usuarioDao.consultarPorId(usuarioId);
 
         if (usuario == null) {
-        System.out.println("Usuário não registrado no sistema. É necessário fazer o cadastro dele antes do empréstimo.");
-        return;
+            System.out.println(
+                    "Usuário não registrado no sistema. É necessário fazer o cadastro dele antes do empréstimo.");
+            return;
         }
 
-        //registro do empréstimo
         Emprestimo emprestimo = new Emprestimo(
                 LocalDate.now(),
                 LocalDate.now().plusDays(14),
-                null,  //usuário será adicionado posteriormente quando implementado
+                usuario,
                 livroSelecionado);
 
-        livroSelecionado.setDisponivel(false);  //atualizar status de disponibilidade do livro
-        emprestimos.add(emprestimo);
+        livroSelecionado.setDisponivel(false);
+        emprestimoDao.adicionar(emprestimo);
+        
+        livroDao.marcarComoEmprestado(livroId, false); //nova linha de emprestimo
+        
 
-        System.out.println("Empréstimo realizado com sucesso!");
+        System.out.println("\nEmpréstimo realizado com sucesso!");
         System.out.println("Livro: " + livroSelecionado.getTitulo());
         System.out.println("Usuário: " + usuario.getNome());
         System.out.println("Data de devolução: " + emprestimo.getDataDevolucao());
-    
-        //NOVA LINHA
+
         notificarUsuario(usuario, "Seu empréstimo foi realizado com sucesso. Livro: " + livroSelecionado.getTitulo());
     }
 
-        //NOVAS LINHAS
-        private static void notificarUsuario(Usuario usuario, String mensagem) {
-            Notificacao notificacao = criarNotificacao(usuario.getPreferenciaNotificacao());
-            notificacao.enviarNotificacao(usuario, mensagem);
-        }
-    
-        private static Notificacao criarNotificacao(String preferencia) {
-            switch (preferencia) {
-                case "1":
-                    return new NotificacaoSMS();
-                case "2":
-                    return new NotificacaoWhatsApp();
-                case "3":
-                default:
-                    return new NotificacaoEmail();
-            }
-        }
+    private static void notificarUsuario(Usuario usuario, String mensagem) {
+        Notificacao notificacao = criarNotificacao(usuario.getPreferenciaNotificacao());
+        notificacao.enviarNotificacao(usuario, mensagem);
+    }
 
-        
-    //MÉTODO PARA DEVOLVER LIVRO QUE FOI EMPRESTADO
+    private static Notificacao criarNotificacao(String preferencia) {
+        switch (preferencia) {
+            case "1":
+                return new NotificacaoSMS();
+            case "2":
+                return new NotificacaoWhatsApp();
+            case "3":
+            default:
+                return new NotificacaoEmail();
+        }
+    }
+
     private static void devolverLivroDoEmprestimo(Scanner scanner) {
-        System.out.print("Digite o título do livro que deseja devolver: ");
-        String tituloLivro = scanner.nextLine();
+        System.out.print("Digite o ID do livro que deseja devolver: ");
+        int livroId = scanner.nextInt();
+        scanner.nextLine(); //limpar o buffer
+        Livro livroSelecionado = livroDao.consultarPorId(livroId);
 
-        Livro livroSelecionado = null;
-
-        for (int i = 0; i < livros.size(); i++) {
-            Livro livro = livros.get(i);   //obter o livro da lista
-            if (livro.getTitulo().equalsIgnoreCase(tituloLivro)) {
-                livroSelecionado = livro;  //se encontrar o livro, armazena na variável
-                break;
-            }
-        }
-
-        if (livroSelecionado == null) { //verificar se o livro está no sistema
+        if (livroSelecionado == null) {
             System.out.println("Livro não encontrado!");
             return;
         }
 
-        if (livroSelecionado.isDisponivel()) {  //verificar se o livro foi emprestado
+        if (livroSelecionado.isDisponivel()) {
             System.out.println("Este livro não precisa ser devolvido, já está disponível!");
             return;
         }
-        
-        livroSelecionado.setDisponivel(true); //atualizar status do livro
+
+        livroSelecionado.setDisponivel(true);
+        livroDao.alterar(livroSelecionado);
+
         System.out.println("Devolução do livro " + livroSelecionado.getTitulo() + " realizada com sucesso!");
     }
-
 }

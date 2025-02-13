@@ -8,6 +8,48 @@
             "type": "java",
             "name": "Main",
             "request": "launch",
+            "mainClass": "com.example.Main",
+            "projectName": "demo"
+        },
+        {
+            "type": "java",
+            "name": "TestaDao",
+            "request": "launch",
+            "mainClass": "com.example.TestaDao",
+            "projectName": "demo"
+        },
+        {
+            "type": "java",
+            "name": "TestaConexao",
+            "request": "launch",
+            "mainClass": "com.example.TestaConexao",
+            "projectName": "demo"
+        },
+        {
+            "type": "java",
+            "name": "TesteDao",
+            "request": "launch",
+            "mainClass": "com.example.TesteDao",
+            "projectName": "demo"
+        },
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "Main",
+            "projectName": "demo"
+        },
+        {
+            "type": "java",
+            "name": "App",
+            "request": "launch",
+            "mainClass": "com.example.App",
+            "projectName": "demo"
+        },
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
             "mainClass": "Main",
             "projectName": "biblioteca-meduarda0_ba54cad8"
         },

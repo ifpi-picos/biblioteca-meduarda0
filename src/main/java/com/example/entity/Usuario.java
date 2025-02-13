@@ -1,15 +1,25 @@
+package com.example.entity;
+
 public class Usuario {
+    private int id;
     private String nome;
     private String cpf;
     private String email;
-    private String preferenciaNotificacao; //NOVA LINHA 
-    
-    
-    public Usuario(String nome, String cpf, String email, String preferenciaNotificacao) {
+    private String preferenciaNotificacao;
+
+    public Usuario(int id, String nome, String cpf, String email, String preferenciaNotificacao) {
+        this.id = id;
         this.nome = nome;
         this.cpf = cpf;
         this.email = email;
-        this.preferenciaNotificacao = preferenciaNotificacao; //NOVA LINHA
+        this.preferenciaNotificacao = preferenciaNotificacao;
+    }
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNome() {
@@ -35,7 +45,7 @@ public class Usuario {
     public void setEmail(String email) {
         this.email = email;
     }
-    //NOVAS LINHAS
+
     public String getPreferenciaNotificacao() {
         return preferenciaNotificacao;
     }
@@ -43,4 +53,4 @@ public class Usuario {
     public void setPreferenciaNotificacao(String preferenciaNotificacao) {
         this.preferenciaNotificacao = preferenciaNotificacao;
     }
-} 
+}

@@ -1,21 +1,32 @@
-import java.util.List; //NOVAS LINHAS
+package com.example.entity;
+import java.util.List; 
 import java.util.ArrayList;
 
 public class Livro {
+    private int id; 
     private String titulo;
     private String autor;
     private String editora;
     private int ano;
     private boolean disponivel;
-    private List<Usuario> listaReservas; //NOVA LINHA //lista de usuários que reservaram o livro 
+    private List<Usuario> listaReservas; //lista de usuários que reservaram livros
     
-    public Livro(String titulo, String autor, String editora, int ano, boolean disponivel) {
+    public Livro(int id, String titulo, String autor, String editora, int ano, boolean disponivel) {
+        this.id = id;
         this.titulo = titulo;
         this.autor = autor;
         this.editora = editora;
         this.ano = ano;
         this.disponivel = disponivel;
-        this.listaReservas = new ArrayList<>(); //NOVA LINHA
+        this.listaReservas = new ArrayList<>();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitulo() {
@@ -58,7 +69,6 @@ public class Livro {
         this.disponivel = disponivel;
     }
 
-    //NOVAS LINHAS
     public void reservarLivro(Usuario usuario) { 
         listaReservas.add(usuario);
     }
@@ -70,4 +80,4 @@ public class Livro {
     public void limparReservas() {
         listaReservas.clear();
     }
-} 
+}
